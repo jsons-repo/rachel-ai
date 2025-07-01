@@ -1,0 +1,74 @@
+# config.yaml
+
+# Networking
+network:
+  fe:
+    host: "0.0.0.0"
+    port: 6677
+    protocol: 'http'
+  be:
+    host: "0.0.0.0"
+    port: 7766
+    protocol: 'http'
+
+# Training
+training:
+  gpt_batch_size: 15
+
+# Audio Processing
+audio:
+  chunk: 1024            
+  channels: 1           
+  rate: 16000             
+  chunk_duration: 5      
+  overlap_duration: 1     
+  silence_threshold: 450
+
+# Models
+model:
+  semantic:
+    repo: "sentence-transformers/all-MiniLM-L6-v2"
+    name: "all-MiniLM-L6-v2"
+    backend: "sentence-transformer"
+    similarity_threshold: 0.80
+    context_minutes: 30
+    context_limit: 1000
+  transcription:
+    repo: "guillaumekln/faster-whisper-small"
+    name: null
+    backend: "faster-whisper"
+    device: "auto"
+    compute_type: "auto"
+    word_timestamps: true  
+    lang: 'en'
+    temp: 0.3
+    beam_size: 3
+    tolerance: 0.1
+  shallow_LLM:
+    repo: "mistralai/Mistral-7B-Instruct-v0.2" 
+    name: null
+    adapter: null
+    adapter_type: null
+    backend: "hf-causal"
+    device: "auto"
+    compute_type: "auto"
+    do_sample: false
+    trust_remote_code: true
+    ctx_window_tokens: 2048
+    max_tokens: 128
+    temperature: 0.2
+    top_p: 0.9
+    top_k: 40
+    repetition_penalty: 1.1
+    do_extra_pass: false
+  deep_LLM:
+    client: 'openai'
+    name: "gpt-4o"
+    deep_search_temp: 0.3
+    temp: 0.2
+    recentFlagSize: 10
+
+summarization:
+  shallow_context_window: 2
+  deep_context_window: 5
+  silence_timeout: 5.0

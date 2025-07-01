@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.app
+    image: rachel-app
+    container_name: rachel-app
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+  train:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.train
+    image: rachel-train
+    container_name: rachel-train
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./accelerate_config.yaml:/root/.cache/huggingface/accelerate/default_config.yaml:ro
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ~/.rachel:/root/.rachel
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface/transformers
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true

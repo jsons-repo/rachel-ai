@@ -1,0 +1,12 @@
+compute_environment: LOCAL_MACHINE
+distributed_type: NO
+mixed_precision: bf16
+use_cpu: false
+gpu_ids: null
+num_machines: 1
+machine_rank: 0
+main_training_function: main
+tpu_name: null
+tpu_zone: null
+deepspeed_config: {}
+fsdp_config: {}

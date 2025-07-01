@@ -1,0 +1,68 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "❌ Usage: ./run path/to/audio.(wav|mp3|mp4)"
+  exit 1
+fi
+
+ORIGINAL_PATH="$1"
+if [ ! -f "$ORIGINAL_PATH" ]; then
+  echo "❌ File not found: $ORIGINAL_PATH"
+  exit 1
+fi
+
+# Project root
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Derive base name and safe name from the original file, NOT the transcoded one
+BASE_NAME=$(basename "$ORIGINAL_PATH")
+BASE_NAME="${BASE_NAME%.*}"  # Strip extension
+SAFE_NAME=$(echo "$BASE_NAME" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '-' | sed 's/[-]*$//;s/[-]\+/-/g')
+
+# Transcode to WAV if needed (run python inline to preserve logic)
+WAV_PATH=$(python3 - "$ORIGINAL_PATH" <<EOF
+import subprocess, tempfile, sys, os
+
+if len(sys.argv) < 2:
+    print("❌ No input path provided", file=sys.stderr)
+    sys.exit(1)
+
+input_path = sys.argv[1]
+if input_path.lower().endswith(".wav"):
+    print(input_path)
+    sys.exit(0)
+
+print("🔁 Transcoding to WAV...", file=sys.stderr)
+tmp_wav = tempfile.mktemp(suffix=".wav")
+cmd = ["ffmpeg", "-y", "-i", input_path, "-ar", "16000", "-ac", "1", tmp_wav]
+proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+if proc.returncode != 0:
+    print(proc.stderr.decode(), file=sys.stderr)
+    sys.exit(1)
+print(tmp_wav)
+EOF
+)
+
+
+# Output locations based on original filename
+OUTPUT_ROOT="data/${SAFE_NAME}"
+WHISPER_JSON="${OUTPUT_ROOT}/whisper.json"
+GPT_OUTPUT_JSON="${OUTPUT_ROOT}/gpt_output.json"
+TRAINING_JSON="${OUTPUT_ROOT}/training.json"
+
+echo "📥 Transcribing with Whisper..."
+PYTHONPATH="$PROJECT_ROOT/src" python3 -m training.wave_to_whisper "$WAV_PATH"
+
+echo "💬 Converting Whisper to GPT output..."
+PYTHONPATH="$PROJECT_ROOT/src" python3 -m training.whisper_to_gpt "$WHISPER_JSON"
+
+echo "📦 Building final training.json..."
+PYTHONPATH="$PROJECT_ROOT/src" python3 -m training.gpt_to_training "$GPT_OUTPUT_JSON"
+
+echo "✅ All done!"
+echo "📄 Outputs:"
+echo " - Whisper:  $WHISPER_JSON"
+echo " - GPT:      $GPT_OUTPUT_JSON"
+echo " - Training: $TRAINING_JSON"

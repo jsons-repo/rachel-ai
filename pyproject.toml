@@ -1,0 +1,62 @@
+[project]
+name = "project-rachel"
+version = "0.1.0"
+description = "A real-time transcription and summarization pipeline"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [{ name = "" }]
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "openai",
+  "pydantic",
+  "torch",
+  "requests",
+  "peft>=0.7.1",
+  "psutil",
+  "pyyaml",
+  "python-dotenv",
+  "faster-whisper",
+  "whispercpp",
+  "pyaudio",
+  "sse-starlette",
+  "llama-cpp-python",
+  "sentence-transformers",
+]
+
+[project.optional-dependencies]
+metal = ["mlx-whisper", "mlx"]
+cuda = []
+train = [
+  "huggingface_hub",
+  "transformers>=4.39.0",
+  "datasets",
+  "peft",
+  "accelerate>=0.25.0",
+]
+
+dev = ["pytest", "black", "mypy", "ruff"]
+
+[project.scripts]
+start = "rachel.api.main:main"
+train = "training.train_hf:main"
+
+[build-system]
+requires = ["setuptools>=61.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 88
