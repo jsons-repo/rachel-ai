@@ -3,11 +3,11 @@
 # Networking
 network:
   fe:
-    host: "0.0.0.0"
+    host: "localhost"
     port: 6677
     protocol: 'http'
   be:
-    host: "0.0.0.0"
+    host: "localhost"
     port: 7766
     protocol: 'http'
 
