@@ -31,22 +31,27 @@ Exported Constants:
     audio = config.audio
     deep = config.model.deep_LLM
 
-    repo_root = Path(__file__).resolve().parents[2]
-    ts_output = Path.cwd() / "src/sharedConfig.ts"
-    os.makedirs(ts_output.parent, exist_ok=True)
+    repo_root = Path.cwd().parent
+    targets = [
+        repo_root / "rachel-view/src/sharedConfig.ts", # Rachel web app
+        repo_root / "rachel-chrome/src/shared/sharedConfig.ts", # Rachel Chrome extension
+    ]
 
-    with open(ts_output, "w") as out:
-        out.write("// AUTO-GENERATED FROM config.yaml via export_fe_config.py\n")
-        out.write(f"export const FE_HOST = '{network.fe.host}';\n")
-        out.write(f"export const FE_PORT = {network.fe.port};\n")
-        out.write(f"export const FE_PROTOCOL = '{network.fe.protocol}';\n")
-        out.write(f"export const BE_HOST = '{network.be.host}';\n")
-        out.write(f"export const BE_PORT = {network.be.port};\n")
-        out.write(f"export const BE_PROTOCOL = '{network.be.protocol}';\n")
-        out.write(f"export const DEEP_NAME = '{deep.name}';\n")
-        out.write(f"export const DEEP_SEARCH_TEMP = {deep.deep_search_temp};\n")
-        out.write(f"export const DEEP_TEMP = {deep.deep_search_temp};\n")
-        out.write(f"export const CHUNK_DURATION = {audio.chunk_duration};\n")
-        out.write(f"export const OVERLAP_DURATION = {audio.overlap_duration};\n")
+    for ts_output in targets:
+        os.makedirs(ts_output.parent, exist_ok=True)
 
-    print(f"✅ Wrote sharedConfig.ts to {ts_output}")
+        with open(ts_output, "w") as out:
+            out.write("// AUTO-GENERATED FROM config.yaml via export_fe_config.py\n")
+            out.write(f"export const FE_HOST = '{network.fe.host}';\n")
+            out.write(f"export const FE_PORT = {network.fe.port};\n")
+            out.write(f"export const FE_PROTOCOL = '{network.fe.protocol}';\n")
+            out.write(f"export const BE_HOST = '{network.be.host}';\n")
+            out.write(f"export const BE_PORT = {network.be.port};\n")
+            out.write(f"export const BE_PROTOCOL = '{network.be.protocol}';\n")
+            out.write(f"export const DEEP_NAME = '{deep.name}';\n")
+            out.write(f"export const DEEP_SEARCH_TEMP = {deep.deep_search_temp};\n")
+            out.write(f"export const DEEP_TEMP = {deep.deep_search_temp};\n")
+            out.write(f"export const CHUNK_DURATION = {audio.chunk_duration};\n")
+            out.write(f"export const OVERLAP_DURATION = {audio.overlap_duration};\n")
+
+        print(f"✅ Wrote sharedConfig.ts to {ts_output}")

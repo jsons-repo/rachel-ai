@@ -163,4 +163,3 @@ def start_transcription():
         audio_queue.put(None) 
         capture_thread.stop()
         transcribe_thread.stop()
-

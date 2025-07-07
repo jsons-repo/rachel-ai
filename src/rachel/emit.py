@@ -64,4 +64,3 @@ def archive_and_emit():
             api_output_queue.put(final_output)
         time.sleep(0.05)
 
-
